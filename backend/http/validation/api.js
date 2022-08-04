@@ -1,7 +1,6 @@
-const express 			= require('express');
-//const dotenv			= require('dotenv').config();
-const md5 				= require('md5')
-const userSchema        = require('../../models/userScehma')
+const express 			    = require('express');
+//const 			    = require('').config();
+const userSchema        = require('../../models/userSchema')
 const bcrypt            = require('bcryptjs');
 
 const { validateResult, ValidationChain, check, validationResult }	= require('express-validator');

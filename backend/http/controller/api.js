@@ -1,5 +1,4 @@
-const userSchema    = require('../../models/userScehma')
-const md5           = require('md5')
+const userSchema    = require('../../models/userSchema')
 const bcrypt        = require('bcryptjs');
 const jwt           = require("jsonwebtoken");
 

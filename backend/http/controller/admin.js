@@ -13,9 +13,11 @@ function login(req, res){
 async function loginSubmit(req, res){
 
 	if(req.body.errors!=undefined){
-		res.render('auth/login',{title:'Login - Pindrop Stories',layout: '../views/layout/auth',errors:req.body.errors,req:req});
+		res.render('auth/login',{title:'Login - Pindrop Stories',layout:'../views/layout/auth',errors:req.body.errors,req:req});
 		return false;
 	}
+
+	res.redirect('/users');
 }
 
 async function users(req,res){
