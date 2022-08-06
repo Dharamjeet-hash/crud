@@ -36,3 +36,30 @@
     transform: rotate(360deg);
   }
 }
+
+div .user-list li:not(:last-child){
+  border-bottom:1px solid;
+}
+
+div .user-list li{
+  background-color: #7785a32f;
+}
+
+.chatBox{
+  width: 100%;
+  height:100%;
+  border:1px solid;
+}
+
+div .user-list{
+  list-style: none;
+}
+
+div .user-list .active{
+  background-color: aquamarine;
+}
+
+
+.mine{
+  text-align: end;
+}
