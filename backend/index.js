@@ -15,8 +15,7 @@ var appDir 				        = path.dirname(require.main.filename);
 var toastr                      = require('express-toastr');
 var flash                       = require('connect-flash')
 const bcrypt                    = require('bcryptjs');
-
-const localStrategy = require('passport-local').Strategy;
+const LocalStrategy             = require('passport-local').Strategy
 
 
 app.use(function (req, res, next){
@@ -43,14 +42,14 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use('custom',new localStrategy(
+passport.use('custom',new LocalStrategy(
     {
         usernameField: 'email',
         passwordField: 'password',
         passReqToCallback: true,
     },
     // function of username, password, done(callback)
-    function(req,done) {
+    function(req,username,password,done) {
       // look for the user data
       UserSchema.findOne({ email: req.body.email }, async function (err, user) {
         // if there is an error
@@ -59,11 +58,9 @@ passport.use('custom',new localStrategy(
         if (!user) { return done(null, false, { message: 'User not found.' }); }
         // if the password isn't correct
 
-        console.log(user)
+        const verifiedPassword = await user.authenticate(req.body.password)
 
-        const verifiedPassword = await bcrypt.compare(req.body.password, user.hash)
-
-        if (!verifiedPassword) { return done(null, false, {   
+        if (!verifiedPassword.user) { return done(null, false, {   
         message: 'Invalid password.' }); }
         // if the user is properly authenticated
         return done(null, user);
@@ -89,6 +86,30 @@ app.use('/app-assets', express.static(path.join(__dirname, 'app-assets')));
 app.use('/api', api);
 app.use('/admin', admin);
 
-app.listen(port, function() {
+let server = app.listen(port, function() {
     console.log("Server is listening at port:" + port);
 });
+
+const io = require('socket.io')(server, {
+    cors: {
+      origin: '*',
+    }
+  });
+  
+  app.set('socketio', io);
+  
+  global.reciever = {	
+  }
+  
+  io.on('connection', (socket) => {
+      socket.on("user_connected", function(data){
+        global.reciever[data['email']] = socket.id
+      });
+  
+      socket.on("send_message",function(data){
+        let reciever_obj    = {type:'not_mine',message:data.message}
+        let sender_obj      = {type:'mine',message:data.message}
+        io.to(global.reciever[data.email]).emit("new_message", reciever_obj)
+        //io.to(data.socket_id).emit("new_message", sender_obj)
+      });
+  });

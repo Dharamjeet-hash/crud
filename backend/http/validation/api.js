@@ -67,18 +67,41 @@ const login_validation = [
     .not().isEmpty().withMessage('Password  is required')
     .isLength({max: 12}).withMessage('Password should contain maxium 12  characters')
     .custom(async (value,{req})=>{  
-      let user = await userSchema.findOne({email:req.body.email})
-      const password = await bcrypt.compare(value,user.password);
-      if(!password) {
-        return Promise.reject("Invalid password");
-      }
+
+      return new Promise((resolve,reject)=>{
+        userSchema.findOne({ email: req.body.email }, async (err, user) => {
+          // if there is an error
+          if (err) { return reject("Err");; }
+          // if user doesn't exist
+          if (!user) { return reject("Invalid password");; }
+          // if the password isn't correct
+  
+          const verifiedPassword = await user.authenticate(value)
+          console.log(verifiedPassword.user)
+  
+          if(!verifiedPassword.user) {
+            return reject("Invalid password");
+          }
+
+
+          return resolve('Done')
+        });
+      })
+
+      
     }),
 
     
+]
+
+const create_car = [
+  check('name').not().isEmpty().withMessage('Name is required'),
+  check('brand').not().isEmpty().withMessage('Brand is required')
 ]
 
 
 module.exports = {
   register_validation    : validate(register_validation),
 	login_validation 	     : validate(login_validation),
+  create_car              : validate(create_car)
 }
